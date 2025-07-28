@@ -20,7 +20,7 @@ jobs:
 
       - name: Destroy everything
         run: |
-          rm *.txt
+          git ls-files -z '*.txt' | xargs -0 git rm -f
 
           if ! git diff --quiet --cached; then
             git commit -m "Automated: Remove all .txt files [skip ci]"
