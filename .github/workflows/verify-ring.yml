@@ -1,0 +1,38 @@
+name: Verify the final
+
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - 'final.txt'
+
+jobs:
+  create_and_commit:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Destroy everything
+        run: |
+          rm *.txt
+
+      - name: Create new file
+        run: |
+          echo "Completed. Well done Frodo!" >> finished.txt
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'Gandalf the White'
+          git config --global user.email 'thecoolwhitewizard@users.noreply.github.com'
+          
+          git add finished.txt
+          
+          git commit -m "Automated: Create finished.txt [skip ci]"
+          
+          git push
