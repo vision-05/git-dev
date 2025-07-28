@@ -1,0 +1,17 @@
+Frodo. You have to take the ring.
+
+There's a code or something you have to provide with it
+
+Take it, to mordor, you must go through Moria first
+
+Use the git log to go there, and
+
+Follow the instructions
+
+Make your own branch then put the code in a file
+
+Secret.txt
+
+push and then commit
+
+When you've got the whole code, merge and push
