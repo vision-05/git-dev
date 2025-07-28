@@ -1,0 +1,38 @@
+name: Create and Commit File on Merge
+
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - 'secret.txt'
+
+jobs:
+  create_and_commit:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create new file
+        run: |
+          echo "My precious" > my-precious.txt
+          echo "Gollum has stolen the ring" >> my-precious.txt
+          echo "Gollum is taking it with him" >> my-precious.txt
+          echo "Gollum is going all the way back to mordor with it" >> my-precious.txt
+          echo "The ring is number 1" >> my-precious.txt
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'Gollum'
+          git config --global user.email 'shmeagol@users.noreply.github.com'
+          
+          git add my-precious.txt
+          
+          git commit -m "Automated: Create my-precious.txt [skip ci]"
+          
+          git push
