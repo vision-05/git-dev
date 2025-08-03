@@ -1,41 +1,51 @@
-name: 
-  check_file
+name: Modify File Once (Fork-Safe)
+
 on:
   push:
-  
-# Grant the workflow permissions to write to the repository
+
+# This requests write permissions for the GITHUB_TOKEN.
+# The repository setting must also be enabled to grant this request.
 permissions:
   contents: write
 
 jobs:
-  edit-and-push-back:
+  edit-once-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Use the GITHUB_TOKEN for authentication to push
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get Changed Files
         id: changed_files
         uses: tj-actions/changed-files@v44
 
-      - name: Modify First Committed File and Push
+      - name: Modify File If Not Already Modified
         # This step only runs if at least one file was changed
         if: steps.changed_files.outputs.all_changed_files_count > 0
         run: |
-          # Get the first file from the space-separated list
           FIRST_FILE=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" | awk '{print $1}')
-          
-          echo "File to be modified: $FIRST_FILE"
-          
-          # Append a line to the identified file
-          echo "Modified by GitHub Action at $(date)" >> "$FIRST_FILE"
-          
-          # Configure git with bot credentials
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          SIGNATURE=""
+
+          # Check if the file ALREADY contains the signature using grep
+          # The '-q' flag makes grep quiet, it just returns an exit code
+          if ! grep -q "$SIGNATURE" "$FIRST_FILE"; then
+            echo "✅ Signature not found. Modifying file: $FIRST_FILE"
+            
+            # Append a blank line for spacing, then the signature
+            echo "" >> "$FIRST_FILE"
+            echo "$SIGNATURE" >> "$FIRST_FILE"
+
+            # Configure git, commit, and push the change
+            git config --global user.name 'github-actions[bot]'
+            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+            git add "$FIRST_FILE"
+            git commit -m "chore: Add modification signature to $FIRST_FILE [skip ci]"
+            git push
+          else
+            echo "☑️ Signature already found in $FIRST_FILE. No action needed."
+          fi
           
           # Add, commit, and push the changes
           git add "$FIRST_FILE"
