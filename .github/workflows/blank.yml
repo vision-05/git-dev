@@ -26,7 +26,7 @@ jobs:
         if: steps.changed_files.outputs.all_changed_files_count > 0
         run: |
           FIRST_FILE=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" | awk '{print $1}')
-          SIGNATURE=""
+          SIGNATURE="FOO"
 
           # Check if the file ALREADY contains the signature using grep
           # The '-q' flag makes grep quiet, it just returns an exit code
@@ -46,8 +46,3 @@ jobs:
           else
             echo "☑️ Signature already found in $FIRST_FILE. No action needed."
           fi
-          
-          # Add, commit, and push the changes
-          git add "$FIRST_FILE"
-          git commit -m "chore: Auto-modify file via Action [skip ci]"
-          git push
