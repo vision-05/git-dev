@@ -1,0 +1,43 @@
+name: 
+  check_file
+on:
+  push:
+  
+# Grant the workflow permissions to write to the repository
+permissions:
+  contents: write
+
+jobs:
+  edit-and-push-back:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          # Use the GITHUB_TOKEN for authentication to push
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Changed Files
+        id: changed_files
+        uses: tj-actions/changed-files@v44
+
+      - name: Modify First Committed File and Push
+        # This step only runs if at least one file was changed
+        if: steps.changed_files.outputs.all_changed_files_count > 0
+        run: |
+          # Get the first file from the space-separated list
+          FIRST_FILE=$(echo "${{ steps.changed_files.outputs.all_changed_files }}" | awk '{print $1}')
+          
+          echo "File to be modified: $FIRST_FILE"
+          
+          # Append a line to the identified file
+          echo "Modified by GitHub Action at $(date)" >> "$FIRST_FILE"
+          
+          # Configure git with bot credentials
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # Add, commit, and push the changes
+          git add "$FIRST_FILE"
+          git commit -m "chore: Auto-modify file via Action [skip ci]"
+          git push
